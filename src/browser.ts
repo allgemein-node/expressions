@@ -18,3 +18,5 @@ export * from "./libs/descriptors/ValueDesc";
 
 export * from "./libs/expressions/ExpressionInterpreter";
 export * from "./libs/expressions/Expressions";
+
+export * from "./libs/exceptions/ExpressionValidationError";
