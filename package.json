@@ -1,6 +1,6 @@
 {
   "name": "commons-expressions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Library for mango expressions",
   "main": "index.js",
   "directories": {
@@ -51,7 +51,8 @@
     "typescript-require": "^0.2.10"
   },
   "dependencies": {
-    "commons-base": "^1.0.10"
+    "commons-base": "^1.0.11",
+    "commons-schema-api": "^1.0.1"
   },
   "private": true,
   "nyc": {
