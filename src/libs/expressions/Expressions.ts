@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import {ExprDesc} from "../descriptors/ExprDesc";
 
-import {NotSupportedError} from "commons-base/browser";
+import {NotSupportedError, NotYetImplementedError} from "commons-base/browser";
 import {In} from "../descriptors/InDesc";
 import {Neq} from "../descriptors/NeqDesc";
 import {Lt} from "../descriptors/LtDesc";
@@ -15,6 +15,14 @@ import {Or} from "../descriptors/OrDesc";
 import {Value} from "../descriptors/ValueDesc";
 import {GroupDesc} from "../descriptors/GroupDesc";
 import {ExpressionInterpreter} from "./ExpressionInterpreter";
+import {IClassRef, IEntityRef, IPropertyRef} from "commons-schema-api/browser";
+
+
+const REGEX_ID = /(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)/;
+const REGEX_ID_G = /(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)/g;
+
+const REGEX_ID_K = /((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\',?)/;
+const REGEX_ID_KG = /((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\',?)/g;
 
 
 export class Expressions {
@@ -188,6 +196,90 @@ export class Expressions {
       }
       throw new NotSupportedError('object cant be resolved ' + JSON.stringify(object, null, 2))
     }
+  }
+
+
+  static parseLookupConditions(ref: IClassRef | IEntityRef, id: string): any | any[] {
+    let idProps = ref.getPropertyRefs().filter(p => p.isIdentifier());
+    if (/^\(.*(\)\s*,\s*\()?.*\)$/.test(id)) {
+      let ids = id.replace(/^\(|\)$/g, '').split(/\)\s*,\s*\(/);
+      return _.map(ids, _id => this.parseLookupConditions(ref, _id));
+    } else if (REGEX_ID.test(id)) {
+      let cond = {};
+      let e;
+      let keys = {};
+      while ((e = REGEX_ID_G.exec(id)) !== null) {
+        keys[e[2]] = e[4] || e[5] || e[7];
+      }
+
+      for (let idp of idProps) {
+        if (keys[idp.name]) {
+          cond[idp.machineName] = idp.convert(keys[idp.name]);
+        }
+      }
+      return cond;
+    } else if (/^\d+(,\d+)+$/.test(id)) {
+      let ids = id.split(",");
+      return _.map(ids, _id => this.parseLookupConditions(ref, _id));
+    } else if (REGEX_ID_K.test(id)) {
+      if (/^\'.*\'$/.test(id)) {
+        id = id.replace(/^\'|\'$/g, '');
+      }
+      let cond = {}
+      let e;
+      let c = 0;
+      while ((e = REGEX_ID_KG.exec(id)) !== null) {
+        let p = idProps[c];
+        let v = e[2] || e[3] || e[5];
+        c += 1;
+        cond[p.machineName] = p.convert(v);
+      }
+      return cond;
+
+    } else {
+      let cond = {};
+      if (idProps.length == 1) {
+        const prop = _.first(idProps);
+        cond[prop.machineName] = prop.convert(id);
+        return cond;
+      } else {
+
+      }
+    }
+    throw new NotYetImplementedError('for ' + id)
+  }
+
+
+  static buildLookupConditions(ref: IClassRef | IEntityRef, data: any | any[]) {
+    let idProps = ref.getPropertyRefs().filter(p => p.isIdentifier());
+    if (_.isArray(data)) {
+      let collect: string[] = [];
+      data.forEach(d => {
+        collect.push(this._buildLookupconditions(idProps, d));
+      })
+      if (idProps.length > 1) {
+        return `(${collect.join('),(')})`;
+      } else {
+        return `${collect.join(',')}`;
+      }
+    } else {
+      return this._buildLookupconditions(idProps, data);
+    }
+  }
+
+
+  private static _buildLookupconditions(idProps: IPropertyRef[], data: any) {
+    let idPk: string[] = [];
+    idProps.forEach(id => {
+      let v = id.get(data);
+      if (_.isString(v)) {
+        idPk.push("'" + v + "'");
+      } else {
+        idPk.push(v);
+      }
+    })
+    return idPk.join(',')
+
   }
 
 

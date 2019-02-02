@@ -4,6 +4,8 @@ import {KeyDesc} from "./KeyDesc";
 import {NotSupportedError, NotYetImplementedError} from "commons-base/browser";
 
 import {ValueDesc} from "./ValueDesc";
+import {IClassRef, ILookupRegistry} from "commons-schema-api";
+import {ExpressionValidationError} from "../exceptions/ExpressionValidationError";
 
 
 export class ExprDesc implements IExpr {
@@ -126,6 +128,57 @@ export class ExprDesc implements IExpr {
   for(target: any, keyMap: any = {}): any {
     throw new NotYetImplementedError()
   }
+
+
+  /**
+   * Test if conditions matching class properties and references
+   */
+  test(sourceRef: IClassRef, errors: string[] = []) {
+    let sourceKeys = this.getSourceKeys();
+    for (let sourceKey of sourceKeys) {
+      let keyChain = sourceKey.split('.');
+      let root = sourceRef;
+      while (keyChain.length > 0) {
+        let _k = keyChain.shift();
+        let p = root.getPropertyRef(_k);
+        if (p) {
+          if (p.isReference()) {
+            root = p.getTargetRef();
+          }
+        } else {
+          errors.push('key ' + _k + ' is no property of ' + root.name);
+        }
+      }
+    }
+    return errors.length == 0;
+  }
+
+  /**
+   * Validate if defined keys match source and target element
+   * - target = referred
+   * - source = referrer
+   */
+  validate(registry: ILookupRegistry, targetRef: IClassRef, sourceRef?: IClassRef, throwing: boolean = true) {
+    let sourceKeys = this.getSourceKeys();
+    let targetKeys = this.getTargetKeys();
+
+    let targetProps = targetRef.getPropertyRefs().map(p => p.name).filter(pn => sourceKeys.indexOf(pn) !== -1);
+    let sourceProps = sourceRef ? sourceRef.getPropertyRefs().map(p => p.name).filter(pn => targetKeys.indexOf(pn) !== -1) : [];
+    if (sourceKeys.length != targetProps.length) {
+      if (throwing) {
+        throw new ExpressionValidationError('referred key(s) ' + sourceKeys.filter(k => targetProps.indexOf(k) === -1).join(',') + ' not in sourceRef')
+      }
+      return false;
+    }
+    if (targetKeys.length != sourceProps.length) {
+      if (throwing) {
+        throw new ExpressionValidationError('referrer key(s) ' + targetKeys.filter(k => sourceProps.indexOf(k) === -1).join(',') + ' not in targetRef')
+      }
+      return false;
+    }
+    return true;
+  }
+
 
   toJson(){
     if(this.isGroup()){
