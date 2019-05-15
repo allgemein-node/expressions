@@ -1,13 +1,12 @@
 import {suite, test} from 'mocha-typescript';
 
 import {expect} from 'chai';
-import {And, Eq, Key, Value} from "../../src";
+import {And, Eq, Key, Or, Value} from "../../src";
 import {Expressions} from "../../src/libs/expressions/Expressions";
 
 
 @suite('functional/expressions')
 class ExpressionsSpec {
-
 
 
   @test
@@ -20,6 +19,27 @@ class ExpressionsSpec {
     let target_keys = cond_01.getTargetKeys();
     expect(target_keys).to.deep.eq(['id']);
 
+
+  }
+
+
+  @test
+  async 'source and target keys are uniq'() {
+
+    const cond_01 = And(Eq('table', Key('test')), Eq('table', Key('test')));
+    let source_keys = cond_01.getSourceKeys();
+    expect(source_keys).to.deep.eq(['table']);
+
+    let target_keys = cond_01.getTargetKeys();
+    expect(target_keys).to.deep.eq(['test']);
+
+
+    const cond_02 = Or(Eq('table', Key('test')), Eq('table', Key('test')));
+    source_keys = cond_01.getSourceKeys();
+    expect(source_keys).to.deep.eq(['table']);
+
+    target_keys = cond_01.getTargetKeys();
+    expect(target_keys).to.deep.eq(['test']);
 
   }
 
