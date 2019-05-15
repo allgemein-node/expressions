@@ -38,7 +38,7 @@ export class ExprDesc implements IExpr {
     } else if (this.isGroup()) {
       keys = _.concat(keys, ..._.map(this.values, v => v.getSourceKeys()));
     }
-    return keys;
+    return _.uniq(keys);
   }
 
 
@@ -51,7 +51,7 @@ export class ExprDesc implements IExpr {
     } else if (this.isGroup()) {
       keys = _.concat(keys, ..._.map(this.values, v => v.getTargetKeys()));
     }
-    return keys;
+    return _.uniq(keys);
   }
 
 
