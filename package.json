@@ -1,6 +1,6 @@
 {
   "name": "commons-expressions",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Library for mango expressions",
   "main": "index.js",
   "directories": {
