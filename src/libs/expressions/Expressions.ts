@@ -217,7 +217,7 @@ export class Expressions {
 
       for (let idp of idProps) {
         if (keys[idp.name]) {
-          cond[idp.machineName] = idp.convert(keys[idp.name]);
+          cond[idp.name] = idp.convert(keys[idp.name]);
         }
       }
       return cond;
@@ -237,7 +237,7 @@ export class Expressions {
         let p = idProps[c];
         let v = e[2] || e[3];
         c += 1;
-        cond[p.machineName] = p.convert(v);
+        cond[p.name] = p.convert(v);
         if (c >= idProps.length) {
           conds.push(_.clone(cond));
           cond = {}
@@ -253,7 +253,7 @@ export class Expressions {
         const conds = [];
         for (const _id of ids) {
           const cond = {};
-          cond[prop.machineName] = prop.convert(_id);
+          cond[prop.name] = prop.convert(_id);
           conds.push(cond);
         }
 
