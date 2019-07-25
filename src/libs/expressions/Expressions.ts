@@ -18,12 +18,13 @@ import {ExpressionInterpreter} from "./ExpressionInterpreter";
 import {IClassRef, IEntityRef, IPropertyRef} from "commons-schema-api/browser";
 
 
-const REGEX_ID = /(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)/;
-const REGEX_ID_G = /(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)/g;
+const REGEX_ID = /^(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)$/;
+const REGEX_ID_G = /^(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)$ /g;
 
-const REGEX_ID_K = /((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\',?)/;
-const REGEX_ID_KG = /((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\',?)/g;
+const REGEX_ID_K = /^((\d+)|(\d+(\.|\,)\d+),?)+$/;
+const REGEX_ID_KG = /^((\d+)|(\d+(\.|\,)\d+),?)+$/g;
 
+const REGEX_ID_W = /^(\'([^\']*)\',?)+$/;
 
 export class Expressions {
 
@@ -199,8 +200,10 @@ export class Expressions {
   }
 
 
-  static parseLookupConditions(ref: IClassRef | IEntityRef, id: string): any | any[] {
+  static parseLookupConditions(ref: IClassRef | IEntityRef, id: any): any | any[] {
     let idProps = ref.getPropertyRefs().filter(p => p.isIdentifier());
+
+
     if (/^\(.*(\)\s*,\s*\()?.*\)$/.test(id)) {
       let ids = id.replace(/^\(|\)$/g, '').split(/\)\s*,\s*\(/);
       return _.map(ids, _id => this.parseLookupConditions(ref, _id));
@@ -220,30 +223,41 @@ export class Expressions {
       return cond;
     } else if (/^\d+(,\d+)+$/.test(id)) {
       let ids = id.split(",");
-      return _.map(ids, _id => this.parseLookupConditions(ref, parseInt(_id, 0)));
-    } else if (/^\d+$/.test(id)) {
-      return parseInt(id);
+      return _.map(ids, _id => this.parseLookupConditions(ref, _.isString(_id) ? parseInt(_id, 0) : _id));
     } else if (REGEX_ID_K.test(id)) {
       if (/^\'.*\'$/.test(id)) {
         id = id.replace(/^\'|\'$/g, '');
       }
+      const conds = [];
+
       let cond = {}
       let e;
       let c = 0;
       while ((e = REGEX_ID_KG.exec(id)) !== null) {
         let p = idProps[c];
-        let v = e[2] || e[3] || e[5];
+        let v = e[2] || e[3];
         c += 1;
         cond[p.machineName] = p.convert(v);
+        if (c >= idProps.length) {
+          conds.push(_.clone(cond));
+          cond = {}
+          c = 0;
+        }
       }
-      return cond;
+      return conds.length === 1 ? conds.shift() : conds;
 
     } else {
-      let cond = {};
       if (idProps.length == 1) {
         const prop = _.first(idProps);
-        cond[prop.machineName] = prop.convert(id);
-        return cond;
+        const ids = id.split(',').map((x: string) => x.trim());
+        const conds = [];
+        for (const _id of ids) {
+          const cond = {};
+          cond[prop.machineName] = prop.convert(_id);
+          conds.push(cond);
+        }
+
+        return conds.length === 1 ? conds.shift() : conds;
       } else {
 
       }
