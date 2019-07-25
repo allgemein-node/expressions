@@ -221,6 +221,8 @@ export class Expressions {
     } else if (/^\d+(,\d+)+$/.test(id)) {
       let ids = id.split(",");
       return _.map(ids, _id => this.parseLookupConditions(ref, parseInt(_id, 0)));
+    } else if (/^\d+$/.test(id)) {
+      return parseInt(id);
     } else if (REGEX_ID_K.test(id)) {
       if (/^\'.*\'$/.test(id)) {
         id = id.replace(/^\'|\'$/g, '');
