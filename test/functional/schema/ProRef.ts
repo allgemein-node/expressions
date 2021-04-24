@@ -1,11 +1,18 @@
-import {AbstractRef, IPropertyRef, XS_TYPE_PROPERTY} from "commons-schema-api";
+import {
+  AbstractRef,
+  IClassRef,
+  ILookupRegistry,
+  IPropertyRef,
+  METADATA_TYPE,
+  METATYPE_PROPERTY
+} from '@allgemein/schema-api';
 import {DummyRef} from "./DummyRef";
 
 export class ProRef extends AbstractRef implements IPropertyRef {
   isId: boolean = false;
 
   constructor(isId: boolean, name: string) {
-    super(XS_TYPE_PROPERTY, name)
+    super(METATYPE_PROPERTY, name)
     this.isId = isId;
   }
 
@@ -20,7 +27,7 @@ export class ProRef extends AbstractRef implements IPropertyRef {
     return undefined;
   }
 
-  getTargetRef(): DummyRef {
+  getTargetRef(): IClassRef {
     return undefined;
   }
 
@@ -50,6 +57,14 @@ export class ProRef extends AbstractRef implements IPropertyRef {
 
   label(): string {
     return "";
+  }
+
+  getRegistry(): ILookupRegistry {
+    return undefined;
+  }
+
+  getClassRefFor(object: string | Function | IClassRef, type: METADATA_TYPE): IClassRef {
+    return undefined;
   }
 
 }

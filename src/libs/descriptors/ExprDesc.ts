@@ -1,28 +1,36 @@
-import {IExpr} from "./IExpr";
-import * as _ from "lodash";
-import {KeyDesc} from "./KeyDesc";
-import {NotSupportedError, NotYetImplementedError} from "commons-base/browser";
+import {IExpr} from './IExpr';
+import * as _ from 'lodash';
+import {KeyDesc} from './KeyDesc';
+import {NotSupportedError, NotYetImplementedError} from '@allgemein/base';
 
-import {ValueDesc} from "./ValueDesc";
-import {IClassRef, ILookupRegistry} from "commons-schema-api";
-import {ExpressionValidationError} from "../exceptions/ExpressionValidationError";
+import {ValueDesc} from './ValueDesc';
+import {IClassRef, ILookupRegistry} from '@allgemein/schema-api';
+import {ExpressionValidationError} from '../exceptions/ExpressionValidationError';
 
 
 export class ExprDesc implements IExpr {
 
-  readonly type:string = 'cond';
+  readonly type: string = 'cond';
 
-  key?: any;
+  private __key?: any;
 
-  value?:any;
+  public get key(): any {
+    return this.__key;
+  }
 
-  values?:any;
+  public set key(value: any) {
+    this.__key = value;
+  }
 
-  isOp(){
+  value?: any;
+
+  values?: any;
+
+  isOp() {
     return false;
   }
 
-  isGroup(){
+  isGroup() {
     return false;
   }
 
@@ -55,7 +63,6 @@ export class ExprDesc implements IExpr {
   }
 
 
-
   applyOn(target: any, source: any, force: boolean = false) {
     if (this.type == 'eq') {
       if (!_.has(target, this.key) || false) {
@@ -64,13 +71,13 @@ export class ExprDesc implements IExpr {
         } else if (this.value instanceof KeyDesc) {
           target[this.key] = source[this.value.key];
         } else {
-          throw new NotYetImplementedError()
+          throw new NotYetImplementedError();
         }
       }
     } else if (this.type == 'and') {
-      _.map(this.values, v => v.applyOn(target, source, force))
+      _.map(this.values, v => v.applyOn(target, source, force));
     } else if (this.type == 'or') {
-      _.map(this.values, v => v.applyOn(target, source, force))
+      _.map(this.values, v => v.applyOn(target, source, force));
     } else {
       throw new NotYetImplementedError();
     }
@@ -83,13 +90,13 @@ export class ExprDesc implements IExpr {
         if (this.value instanceof KeyDesc) {
           target[this.value.key] = source[this.key];
         } else {
-          throw new NotYetImplementedError()
+          throw new NotYetImplementedError();
         }
       }
     } else if (this.type == 'and') {
-      _.map(this.values, v => v.applyReverseOn(target, source, force))
+      _.map(this.values, v => v.applyReverseOn(target, source, force));
     } else if (this.type == 'or') {
-      _.map(this.values, v => v.applyReverseOn(target, source, force))
+      _.map(this.values, v => v.applyReverseOn(target, source, force));
     } else {
       throw new NotYetImplementedError();
     }
@@ -101,14 +108,14 @@ export class ExprDesc implements IExpr {
    * (sometimes needed for join definitions).
    */
   getMap() {
-    let map: any = {}
+    let map: any = {};
     if (this.type == 'eq') {
       if (this.value instanceof KeyDesc) {
         map[this.key] = this.value.key;
       } else if (this.value instanceof ValueDesc) {
-        map[this.key] = "'" + this.value.value + "'";
+        map[this.key] = '\'' + this.value.value + '\'';
       } else {
-        throw new NotYetImplementedError()
+        throw new NotYetImplementedError();
       }
     } else if (this.type == 'and') {
       _.merge(map, ..._.map(this.values, v => v.getMap()));
@@ -122,11 +129,11 @@ export class ExprDesc implements IExpr {
 
 
   lookup(source: any): (target: any) => boolean {
-    throw new NotYetImplementedError()
+    throw new NotYetImplementedError();
   }
 
   for(target: any, keyMap: any = {}): any {
-    throw new NotYetImplementedError()
+    throw new NotYetImplementedError();
   }
 
 
@@ -166,13 +173,13 @@ export class ExprDesc implements IExpr {
     let sourceProps = sourceRef ? sourceRef.getPropertyRefs().map(p => p.name).filter(pn => targetKeys.indexOf(pn) !== -1) : [];
     if (sourceKeys.length != targetProps.length) {
       if (throwing) {
-        throw new ExpressionValidationError('referred key(s) ' + sourceKeys.filter(k => targetProps.indexOf(k) === -1).join(',') + ' not in sourceRef')
+        throw new ExpressionValidationError('referred key(s) ' + sourceKeys.filter(k => targetProps.indexOf(k) === -1).join(',') + ' not in sourceRef');
       }
       return false;
     }
     if (targetKeys.length != sourceProps.length) {
       if (throwing) {
-        throw new ExpressionValidationError('referrer key(s) ' + targetKeys.filter(k => sourceProps.indexOf(k) === -1).join(',') + ' not in targetRef')
+        throw new ExpressionValidationError('referrer key(s) ' + targetKeys.filter(k => sourceProps.indexOf(k) === -1).join(',') + ' not in targetRef');
       }
       return false;
     }
@@ -180,17 +187,17 @@ export class ExprDesc implements IExpr {
   }
 
 
-  toJson(){
-    if(this.isGroup()){
-      let res:any= {};
-      res['$'+this.type] = _.map(this.values, x => x.toJson());
+  toJson() {
+    if (this.isGroup()) {
+      let res: any = {};
+      res['$' + this.type] = _.map(this.values, x => x.toJson());
       return res;
-    }else if(this.isOp()){
-      let res:any= {};
-      res[this.key] = {}
-      res[this.key]['$'+this.type] = this.value.toJson ? this.value.toJson() : this.value;
+    } else if (this.isOp()) {
+      let res: any = {};
+      res[this.key] = {};
+      res[this.key]['$' + this.type] = this.value.toJson ? this.value.toJson() : this.value;
       return res;
-    }else{
+    } else {
       throw new NotSupportedError('toJson to this condition not supported');
     }
 

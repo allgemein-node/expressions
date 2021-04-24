@@ -1,22 +1,21 @@
-
 // conditions
-export * from "./libs/descriptors/IExpr";
-export * from "./libs/descriptors/ExprDesc";
-export * from "./libs/descriptors/OpDesc";
-export * from "./libs/descriptors/InDesc";
-export * from "./libs/descriptors/AndDesc";
-export * from "./libs/descriptors/OrDesc";
-export * from "./libs/descriptors/EqDesc";
-export * from "./libs/descriptors/GeDesc";
-export * from "./libs/descriptors/GroupDesc";
-export * from "./libs/descriptors/KeyDesc";
-export * from "./libs/descriptors/LeDesc";
-export * from "./libs/descriptors/LikeDesc";
-export * from "./libs/descriptors/NeqDesc";
-export * from "./libs/descriptors/Selector";
-export * from "./libs/descriptors/ValueDesc";
+export {IExpr} from './libs/descriptors/IExpr';
+export {ExprDesc} from './libs/descriptors/ExprDesc';
+export {OpDesc} from './libs/descriptors/OpDesc';
+export {In, InDesc} from './libs/descriptors/InDesc';
+export {And, AndDesc} from './libs/descriptors/AndDesc';
+export {Or, OrDesc} from './libs/descriptors/OrDesc';
+export {Eq, EqDesc} from './libs/descriptors/EqDesc';
+export {Ge, GeDesc} from './libs/descriptors/GeDesc';
+export {GroupDesc} from './libs/descriptors/GroupDesc';
+export {Key, KeyDesc} from './libs/descriptors/KeyDesc';
+export {Le, LeDesc} from './libs/descriptors/LeDesc';
+export {Like, LikeDesc} from './libs/descriptors/LikeDesc';
+export {Neq, NeqDesc} from './libs/descriptors/NeqDesc';
+export {Selector} from './libs/descriptors/Selector';
+export {Value, ValueDesc} from './libs/descriptors/ValueDesc';
 
-export * from "./libs/expressions/ExpressionInterpreter";
-export * from "./libs/expressions/Expressions";
+export {ExpressionInterpreter} from './libs/expressions/ExpressionInterpreter';
+export {Expressions} from './libs/expressions/Expressions';
 
-export * from "./libs/exceptions/ExpressionValidationError";
+export {ExpressionValidationError} from './libs/exceptions/ExpressionValidationError';

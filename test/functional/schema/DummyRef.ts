@@ -1,10 +1,17 @@
-import {AbstractRef, IBuildOptions, IEntityRef, XS_TYPE_ENTITY} from "commons-schema-api";
+import {
+  AbstractRef,
+  IBuildOptions, IClassRef,
+  IEntityRef,
+  ILookupRegistry, ISchemaRef,
+  METADATA_TYPE,
+  METATYPE_ENTITY
+} from '@allgemein/schema-api';
 import {ProRef} from "./ProRef";
 
 export class DummyRef extends AbstractRef implements IEntityRef {
 
   constructor(name: string = 'dummy') {
-    super(XS_TYPE_ENTITY, name)
+    super(METATYPE_ENTITY, name)
   }
 
   build<T>(instance: any, options?: IBuildOptions): T {
@@ -25,6 +32,18 @@ export class DummyRef extends AbstractRef implements IEntityRef {
 
   id(): string {
     return "";
+  }
+
+  getClassRefFor(object: string | Function | IClassRef, type: METADATA_TYPE): IClassRef {
+    return undefined;
+  }
+
+  getRegistry(): ILookupRegistry {
+    return undefined;
+  }
+
+  getSchemaRefs(): ISchemaRef[] {
+    return [];
   }
 
 }

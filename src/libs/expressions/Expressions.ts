@@ -1,21 +1,21 @@
 import * as _ from 'lodash';
-import {ExprDesc} from "../descriptors/ExprDesc";
+import {ExprDesc} from '../descriptors/ExprDesc';
 
-import {NotSupportedError, NotYetImplementedError} from "commons-base/browser";
-import {In} from "../descriptors/InDesc";
-import {Neq} from "../descriptors/NeqDesc";
-import {Lt} from "../descriptors/LtDesc";
-import {Gt} from "../descriptors/GtDesc";
-import {And} from "../descriptors/AndDesc";
-import {Eq} from "../descriptors/EqDesc";
-import {Ge} from "../descriptors/GeDesc";
-import {Key} from "../descriptors/KeyDesc";
-import {Le} from "../descriptors/LeDesc";
-import {Or} from "../descriptors/OrDesc";
-import {Value} from "../descriptors/ValueDesc";
-import {GroupDesc} from "../descriptors/GroupDesc";
-import {ExpressionInterpreter} from "./ExpressionInterpreter";
-import {IClassRef, IEntityRef, IPropertyRef} from "commons-schema-api/browser";
+import {NotSupportedError, NotYetImplementedError} from '@allgemein/base';
+import {In} from '../descriptors/InDesc';
+import {Neq} from '../descriptors/NeqDesc';
+import {Lt} from '../descriptors/LtDesc';
+import {Gt} from '../descriptors/GtDesc';
+import {And} from '../descriptors/AndDesc';
+import {Eq} from '../descriptors/EqDesc';
+import {Ge} from '../descriptors/GeDesc';
+import {Key} from '../descriptors/KeyDesc';
+import {Le} from '../descriptors/LeDesc';
+import {Or} from '../descriptors/OrDesc';
+import {Value} from '../descriptors/ValueDesc';
+import {GroupDesc} from '../descriptors/GroupDesc';
+import {ExpressionInterpreter} from './ExpressionInterpreter';
+import {IClassRef, IEntityRef, IPropertyRef} from '@allgemein/schema-api';
 
 
 const REGEX_ID = /^(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)$/;
@@ -45,7 +45,7 @@ export class Expressions {
     } else if (_.isPlainObject(str)) {
       return this.fromJson(str);
     } else {
-      throw new NotSupportedError('object cant be interpreted to conditions, wrong format')
+      throw new NotSupportedError('object cant be interpreted to conditions, wrong format');
     }
   }
 
@@ -106,7 +106,7 @@ export class Expressions {
   static fromJson(object: any, srcKey: string = null, parent: ExprDesc = null): ExprDesc {
     if (_.isArray(object)) {
       if (!parent || !(parent instanceof GroupDesc)) {
-        parent = Or()
+        parent = Or();
       }
 
       for (let obj of object) {
@@ -131,7 +131,7 @@ export class Expressions {
             }
             return this.fromJson(object[op], null, desc);
           } else {
-            throw new NotSupportedError('or|and must have an array as value ' + JSON.stringify(object, null, 2))
+            throw new NotSupportedError('or|and must have an array as value ' + JSON.stringify(object, null, 2));
           }
         } else if (['$eq', '$le', '$lt', '$ge', '$gt', '$ne', '$like'].indexOf(op) > -1) {
           let key = Key(srcKey);
@@ -141,7 +141,7 @@ export class Expressions {
               value = Key(object[op].$key);
             } else {
               // ???
-              throw new NotSupportedError('object given but without known operator')
+              throw new NotSupportedError('object given but without known operator');
             }
           } else {
             value = Value(object[op]);
@@ -161,26 +161,26 @@ export class Expressions {
               return Gt(key, value);
           }
 
-          throw new NotSupportedError('in operator found')
+          throw new NotSupportedError('in operator found');
         } else if (op == '$in') {
           let key = Key(srcKey);
           let value: any = null;
           if (_.isArray(object[op])) {
             value = Value(object[op]);
           } else {
-            throw new NotSupportedError('in operator needs an array as input')
+            throw new NotSupportedError('in operator needs an array as input');
           }
           return In(key, value);
 
         } else {
-          throw new NotSupportedError('operator ' + op + ' not supported')
+          throw new NotSupportedError('operator ' + op + ' not supported');
         }
 
       } else if (operator.length == 0) {
         let desc: ExprDesc[] = [];
 
         for (let k of keys) {
-          desc.push(this.fromJson(object[k], k, null))
+          desc.push(this.fromJson(object[k], k, null));
         }
 
         if (desc.length == 1) {
@@ -189,13 +189,13 @@ export class Expressions {
           return And(...desc);
         }
       } else {
-        throw new NotSupportedError('object has wrong keys ' + JSON.stringify(object, null, 2))
+        throw new NotSupportedError('object has wrong keys ' + JSON.stringify(object, null, 2));
       }
     } else {
       if (srcKey) {
         return Eq(Key(srcKey), object);
       }
-      throw new NotSupportedError('object cant be resolved ' + JSON.stringify(object, null, 2))
+      throw new NotSupportedError('object cant be resolved ' + JSON.stringify(object, null, 2));
     }
   }
 
@@ -222,7 +222,7 @@ export class Expressions {
       }
       return cond;
     } else if (/^\d+(,\d+)+$/.test(id)) {
-      let ids = id.split(",");
+      let ids = id.split(',');
       return _.map(ids, _id => this.parseLookupConditions(ref, _.isString(_id) ? parseInt(_id, 0) : _id));
     } else if (REGEX_ID_K.test(id)) {
       if (/^\'.*\'$/.test(id)) {
@@ -230,7 +230,7 @@ export class Expressions {
       }
       const conds = [];
 
-      let cond = {}
+      let cond = {};
       let e;
       let c = 0;
       while ((e = REGEX_ID_KG.exec(id)) !== null) {
@@ -240,7 +240,7 @@ export class Expressions {
         cond[p.name] = p.convert(v);
         if (c >= idProps.length) {
           conds.push(_.clone(cond));
-          cond = {}
+          cond = {};
           c = 0;
         }
       }
@@ -262,7 +262,7 @@ export class Expressions {
 
       }
     }
-    throw new NotYetImplementedError('for ' + id)
+    throw new NotYetImplementedError('for ' + id);
   }
 
 
@@ -272,7 +272,7 @@ export class Expressions {
       let collect: string[] = [];
       data.forEach(d => {
         collect.push(this._buildLookupconditions(idProps, d));
-      })
+      });
       if (idProps.length > 1) {
         return `(${collect.join('),(')})`;
       } else {
@@ -289,12 +289,12 @@ export class Expressions {
     idProps.forEach(id => {
       let v = id.get(data);
       if (_.isString(v)) {
-        idPk.push("'" + v + "'");
+        idPk.push('\'' + v + '\'');
       } else {
         idPk.push(v);
       }
-    })
-    return idPk.join(',')
+    });
+    return idPk.join(',');
 
   }
 
