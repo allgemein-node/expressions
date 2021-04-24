@@ -1,18 +1,19 @@
 {
-  "name": "commons-expressions",
-  "version": "1.0.7",
+  "name": "@allgemein/expressions",
+  "version": "1.1.0",
   "description": "Library for mango expressions",
   "main": "index.js",
+  "private": true,
   "directories": {
     "doc": "docs/de"
   },
   "scripts": {
-    "test": "nyc mocha --opts test/mocha.all.opts",
+    "test": "nyc mocha test/functional/*.spec.ts",
     "posttest": "nyc report --reporter=json && codecov -f coverage/*.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thinkbaer/node-commons-expressions.git"
+    "url": "git+https://github.com/allgemein-node/expressions.git"
   },
   "author": "Robert Kania",
   "license": "MIT",
@@ -21,56 +22,44 @@
     "typescript",
     "mango",
     "expressions",
-    "string-parser"
+    "string-parser",
+    "allgemein"
   ],
   "bugs": {
-    "url": "https://github.com/thinkbaer/node-commons-expressions/issues"
+    "url": "https://github.com/allgemein-node/expressions/issues"
   },
-  "homepage": "https://github.com/thinkbaer/node-commons-expressions#readme",
+  "homepage": "https://github.com/allgemein-node/expressions#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/lodash": "^4.14.120",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.20",
-    "chai": "^4.2.0",
-    "del": "^3.0.0",
-    "gulp": "^3.9.1",
-    "gulp-bump": "^3.1.3",
+    "@allgemein/packaging": "^1.1.0",
+    "@testdeck/mocha": "^0.1.2",
+    "@types/chai": "^4.2.16",
+    "@types/glob": "^7.1.3",
+    "@types/json-schema": "^7.0.7",
+    "@types/lodash": "^4.14.168",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.41",
+    "chai": "^4.3.4",
+    "codecov": "^3.8.1",
+    "codelyzer": "^5.2.0",
+    "del": "^6.0.0",
+    "glob": "^7.1.6",
+    "gulp": "^4.0.2",
+    "gulp-bump": "^3.2.0",
     "gulp-clean": "^0.4.0",
-    "gulp-replace": "^1.0.0",
-    "gulp-shell": "^0.6.5",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-typescript": "^4.0.2",
-    "gulpclass": "0.1.2",
-    "mocha": "^5.2.0",
-    "mocha-typescript": "^1.1.17",
-    "nyc": "^13.1.0",
+    "gulp-replace": "^1.1.1",
+    "gulp-shell": "^0.8.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-typescript": "^5.0.1",
+    "merge-stream": "^2.0.0",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
     "reflect-metadata": "^0.1.13",
-    "ts-node": "^8.0.2",
-    "tslint": "^5.18.0",
-    "typescript": "^3.2.4",
-    "typescript-require": "^0.2.10"
+    "ts-node": "^9.1.1",
+    "tslint": "^5.20.1",
+    "typescript": "^4.2.4"
   },
   "dependencies": {
-    "commons-base": "^1.1.2",
-    "commons-schema-api": "^1.1.3"
-  },
-  "private": true,
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "**/*.d.ts",
-      "tmp/",
-      "build/"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "sourceMap": true,
-    "instrument": true,
-    "cache": false
+    "@allgemein/base": "^1.5.2",
+    "@allgemein/schema-api": "^1.2.1"
   }
 }

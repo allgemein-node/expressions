@@ -18,6 +18,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "stripInternal": true,
+    "skipLibCheck": true,
     //"strictNullChecks": true,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
