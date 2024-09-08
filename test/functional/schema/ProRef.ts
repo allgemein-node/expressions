@@ -67,4 +67,12 @@ export class ProRef extends AbstractRef implements IPropertyRef {
     return undefined;
   }
 
+  isAppended(): boolean {
+    return false;
+  }
+
+  isPattern(): boolean {
+    return false;
+  }
+
 }

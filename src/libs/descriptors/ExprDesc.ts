@@ -67,8 +67,10 @@ export class ExprDesc implements IExpr {
     if (this.type == 'eq') {
       if (!_.has(target, this.key) || false) {
         if (this.value instanceof ValueDesc) {
+          // @ts-ignore
           target[this.key] = this.value.value;
         } else if (this.value instanceof KeyDesc) {
+          // @ts-ignore
           target[this.key] = source[this.value.key];
         } else {
           throw new NotYetImplementedError();
@@ -88,6 +90,7 @@ export class ExprDesc implements IExpr {
     if (this.type == 'eq') {
       if (!_.has(target, this.key) || false) {
         if (this.value instanceof KeyDesc) {
+          // @ts-ignore
           target[this.value.key] = source[this.key];
         } else {
           throw new NotYetImplementedError();

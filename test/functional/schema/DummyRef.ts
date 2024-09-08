@@ -22,10 +22,12 @@ export class DummyRef extends AbstractRef implements IEntityRef {
     return undefined;
   }
 
+  // @ts-ignore
   getPropertyRef(name: string): ProRef {
     return undefined;
   }
 
+  // @ts-ignore
   getPropertyRefs(): ProRef[] {
     return [new ProRef(true, 'id')];
   }
@@ -44,6 +46,10 @@ export class DummyRef extends AbstractRef implements IEntityRef {
 
   getSchemaRefs(): ISchemaRef[] {
     return [];
+  }
+
+  isOf(instance: any): boolean {
+    return false;
   }
 
 }
