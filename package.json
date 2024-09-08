@@ -1,6 +1,6 @@
 {
   "name": "@allgemein/expressions",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Library for mango expressions",
   "main": "index.js",
   "private": true,
