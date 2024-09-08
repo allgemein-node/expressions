@@ -9,13 +9,15 @@ import {Gt} from '../descriptors/GtDesc';
 import {And} from '../descriptors/AndDesc';
 import {Eq} from '../descriptors/EqDesc';
 import {Ge} from '../descriptors/GeDesc';
-import {Key} from '../descriptors/KeyDesc';
+import {Key, KeyDesc} from '../descriptors/KeyDesc';
 import {Le} from '../descriptors/LeDesc';
 import {Or} from '../descriptors/OrDesc';
 import {Value} from '../descriptors/ValueDesc';
 import {GroupDesc} from '../descriptors/GroupDesc';
 import {ExpressionInterpreter} from './ExpressionInterpreter';
 import {IClassRef, IEntityRef, IPropertyRef} from '@allgemein/schema-api';
+import {Like} from '../descriptors/LikeDesc';
+import {Selector} from '../descriptors/Selector';
 
 
 const REGEX_ID = /^(([\w_]+)=((\d+)|(\d+(\.|\,)\d+)|\'([^\']*)\'),?)$/;
@@ -27,6 +29,17 @@ const REGEX_ID_KG = /^((\d+)|(\d+(\.|\,)\d+),?)+$/g;
 const REGEX_ID_W = /^(\'([^\']*)\',?)+$/;
 
 export class Expressions {
+
+  static EXPR_REGISTRY = {
+    '$eq': (k: KeyDesc, v: Selector) => Eq(k, v),
+    '$ne': (k: KeyDesc, v: Selector) => Neq(k, v),
+    '$le': (k: KeyDesc, v: Selector) => Le(k, v),
+    '$lt': (k: KeyDesc, v: Selector) => Lt(k, v),
+    '$ge': (k: KeyDesc, v: Selector) => Ge(k, v),
+    '$gt': (k: KeyDesc, v: Selector) => Gt(k, v),
+    '$like': (k: KeyDesc, v: Selector) => Like(k, v),
+    '$in': (k: KeyDesc, v: Selector) => In(k, v)
+  }
 
   static parse(str: any): ExprDesc {
     if (_.isString(str)) {
@@ -103,7 +116,13 @@ export class Expressions {
       return cond;
     }
   */
+
+  static exprKeys() {
+    return Object.keys(this.EXPR_REGISTRY);
+  }
+
   static fromJson(object: any, srcKey: string = null, parent: ExprDesc = null): ExprDesc {
+
     if (_.isArray(object)) {
       if (!parent || !(parent instanceof GroupDesc)) {
         parent = Or();
@@ -133,10 +152,12 @@ export class Expressions {
           } else {
             throw new NotSupportedError('or|and must have an array as value ' + JSON.stringify(object, null, 2));
           }
-        } else if (['$eq', '$le', '$lt', '$ge', '$gt', '$ne', '$like'].indexOf(op) > -1) {
+        } else if (this.exprKeys().indexOf(op) > -1) {
           let key = Key(srcKey);
           let value: any = null;
-          if (_.isPlainObject(object[op])) {
+          if (_.isArray(object[op])) {
+            value = Value(object[op]);
+          } else if (_.isPlainObject(object[op])) {
             if (_.has(object[op], '$key')) {
               value = Key(object[op].$key);
             } else {
@@ -146,32 +167,7 @@ export class Expressions {
           } else {
             value = Value(object[op]);
           }
-          switch (op) {
-            case '$eq':
-              return Eq(key, value);
-            case '$ne':
-              return Neq(key, value);
-            case '$le':
-              return Le(key, value);
-            case '$lt':
-              return Lt(key, value);
-            case '$ge':
-              return Ge(key, value);
-            case '$gt':
-              return Gt(key, value);
-          }
-
-          throw new NotSupportedError('in operator found');
-        } else if (op == '$in') {
-          let key = Key(srcKey);
-          let value: any = null;
-          if (_.isArray(object[op])) {
-            value = Value(object[op]);
-          } else {
-            throw new NotSupportedError('in operator needs an array as input');
-          }
-          return In(key, value);
-
+          return this.EXPR_REGISTRY[op](key, value);
         } else {
           throw new NotSupportedError('operator ' + op + ' not supported');
         }

@@ -17,7 +17,7 @@ export class EqDesc extends OpDesc {
     const value = this.value instanceof KeyDesc ? source[this.value.key] : _.clone((<ValueDesc>this.value).value);
     const key = this.key;
     return function (target: any) {
-      return target[key] == value;
+      return target[key] === value;
     }
   }
 
